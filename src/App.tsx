@@ -1,7 +1,7 @@
 import React, { useState, ChangeEvent } from 'react'
 import { validate } from 'class-validator'
 import './App.css'
-import IntlTelInput from 'react-intl-tel-input'
+import IntlTelInput, { CountryData } from 'react-intl-tel-input'
 import 'react-intl-tel-input/dist/main.css'
 import { Form } from './validators/Form'
 
@@ -10,6 +10,7 @@ function App() {
   const [lastName, setLastName] = useState('')
   const [email, setEmail] = useState('')
   const [phone, setPhone] = useState('')
+  const [countryCode, setCountryCode] = useState('')
 
   const [errors, setErrors] = useState({
     firstName: false,
@@ -40,7 +41,28 @@ function App() {
     )
     setErrors(newErrors)
     if (!validation.length) {
-      alert('Send data')
+      const myHeaders = new Headers()
+      myHeaders.append('Content-Type', 'application/x-www-form-urlencoded')
+      const urlencoded = new URLSearchParams()
+      urlencoded.append('first_name', firstName)
+      urlencoded.append('last_name', lastName)
+      urlencoded.append('password', 'Obwriu48')
+      urlencoded.append('email', email)
+      urlencoded.append('funnel', 'bitcoin-buyer-v2')
+      urlencoded.append('affid', '10039')
+      urlencoded.append('area_code', `+${countryCode}`)
+      urlencoded.append('phone', phone)
+
+      const rawResponse = await fetch('https://api.wickedtrack.com/leads', {
+        method: 'POST',
+        headers: myHeaders,
+        body: urlencoded
+      })
+
+      const response = await rawResponse.json()
+      const url = response?.extras?.redirect?.url
+
+      if (url) window.location.href = url
     }
   }
 
@@ -56,8 +78,11 @@ function App() {
     setEmail(event.target.value)
   }
 
-  const onPhoneNumberChange = (valid: boolean, value: string) => {
-    setPhone(valid ? value : '')
+  const onPhoneNumberChange = (valid: boolean, value: string, countryData: CountryData) => {
+    const code = countryData.dialCode ?? ''
+    const phone = valid ? value : ''
+    setPhone(phone)
+    setCountryCode(code)
   }
 
   return (
