@@ -1,6 +1,5 @@
 import React, { useState, ChangeEvent } from 'react'
 import { validate } from 'class-validator'
-import logo from './logo.svg'
 import './App.css'
 import IntlTelInput from 'react-intl-tel-input'
 import 'react-intl-tel-input/dist/main.css'
